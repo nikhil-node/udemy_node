@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     minlength: [3, "User name cannot be less than 3 character"],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ["user", "guide", "lead-guide", "admin"],
+    default: "user",
+  },
   password: {
     type: String,
     required: [true, "Password cannot be blank"],
@@ -37,6 +42,7 @@ const userSchema = new mongoose.Schema({
       message: "Password and confirm password not match",
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -48,7 +54,23 @@ userSchema.pre("save", async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
-
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+//To check password was changed after token was generated
+userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedPassword = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return changedPassword > JWTTimestamp;
+  }
+  return false;
+};
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
