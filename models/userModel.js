@@ -88,7 +88,7 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
-//Update password change timestamp
+//Update password change timestamp when password update
 userSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();
 
