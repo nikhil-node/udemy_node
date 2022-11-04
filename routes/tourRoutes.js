@@ -1,6 +1,7 @@
 const express = require("express");
 const tourController = require("../controllers/tourController");
 const authController = require("../controllers/authController");
+
 const router = express.Router(); // mounting router example step-1
 
 /* Static json file example */
